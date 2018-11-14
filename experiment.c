@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    fd_dev_zero=open("/dev/zero", O_RDONLY);
+    fd_dev_zero=open("/dev/urandom", O_RDONLY);
     if (fd_dev_zero==-1) {
         perror("open");
         exit(EXIT_FAILURE);
