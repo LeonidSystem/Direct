@@ -11,7 +11,7 @@
 int main(int argc, char *argv[]) {
     int fd_dev_zero, fd_tfs;
 
-    fd_tfs=open("/home/leonid/Документы/TFS", O_CREAT | O_WRONLY | O_TRUNC, 0666);
+    fd_tfs=open("./tfs.bin", O_CREAT | O_WRONLY | O_TRUNC, 0666);
     if (fd_tfs==-1) {
         perror("open");
         exit(EXIT_FAILURE);
