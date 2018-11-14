@@ -77,6 +77,6 @@ int main(int argc, char *argv[]) {
         elapsedTime = (t2.tv_sec - t1.tv_sec);
         elapsedTime += (t2.tv_nsec - t1.tv_nsec) / 1.0E9;
 
-        printf("%d : %f : %f\n", blocksize, elapsedTime, ((double)blocksize/1024/1024)/elapsedTime);   /**Megabyte/sec**/
+        printf("%d : %f : %f\n", blocksize, elapsedTime, ((double)TFS/1024/1024)/elapsedTime);   /**Megabyte/sec**/
     }
 }
