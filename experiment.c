@@ -39,15 +39,13 @@ int main(int argc, char *argv[]) {
         char *buf=malloc(blocksize);
 
         /**TIME - 1**/
-        struct timespec tp;
+        struct timespec t1 = {0};
 
-        int clock_err=clock_gettime(CLOCK_MONOTONIC, &tp);
+        int clock_err=clock_gettime(CLOCK_MONOTONIC, &t1);
         if (clock_err==-1) {
             perror("clock_gettime");
             exit(EXIT_FAILURE);
         }
-
-        double tv_past=tp.tv_sec+(double)tp.tv_nsec/10000000000;
 
         /**Internal circle**/
         for (int i=0; i<counter; i++) {
@@ -67,12 +65,18 @@ int main(int argc, char *argv[]) {
         free(buf);
 
         /**TIME - 2**/
-        clock_err=clock_gettime(CLOCK_MONOTONIC, &tp);
+        struct timespec t2 = {0};
+        clock_err=clock_gettime(CLOCK_MONOTONIC, &t2);
         if (clock_err==-1) {
             perror("clock_gettime");
             exit(EXIT_FAILURE);
         }
 
-        printf("%d : %f\n", blocksize, (double)blocksize/(tp.tv_sec+(double)tp.tv_nsec/10000000000-tv_past)/1024/1024);   /**Megabyte/sec**/
+        double elapsedTime;
+
+        elapsedTime = (t2.tv_sec - t1.tv_sec);
+        elapsedTime += (t2.tv_nsec - t1.tv_nsec) / 1.0E9;
+
+        printf("%d : %f : %f\n", blocksize, elapsedTime, ((double)blocksize/1024/1024)/elapsedTime);   /**Megabyte/sec**/
     }
 }
