@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,7 +29,6 @@ int main(int argc, char *argv[]) {
 
         int counter=TFS/blocksize;
 
-        sync();
 
         off_t lseek_err=lseek(fd_tfs, 0, SEEK_SET);
         if (lseek_err==-1) {
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        free(buf);
+        syncfs(fd_tfs);
 
         /**TIME - 2**/
         struct timespec t2 = {0};
@@ -71,6 +71,8 @@ int main(int argc, char *argv[]) {
             perror("clock_gettime");
             exit(EXIT_FAILURE);
         }
+
+        free(buf);
 
         double elapsedTime;
 
