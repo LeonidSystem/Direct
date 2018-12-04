@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,13 +12,13 @@
 int main(int argc, char *argv[]) {
     int fd_dev_zero, fd_tfs;
 
-    fd_tfs=open("/home/leonid/Документы/TFS", O_CREAT | O_WRONLY | O_TRUNC, 0666);
+    fd_tfs=open("./tfs.bin", O_CREAT | O_WRONLY | O_TRUNC, 0666);
     if (fd_tfs==-1) {
         perror("open");
         exit(EXIT_FAILURE);
     }
 
-    fd_dev_zero=open("/dev/zero", O_RDONLY);
+    fd_dev_zero=open("/dev/urandom", O_RDONLY);
     if (fd_dev_zero==-1) {
         perror("open");
         exit(EXIT_FAILURE);
@@ -28,7 +29,6 @@ int main(int argc, char *argv[]) {
 
         int counter=TFS/blocksize;
 
-        sync();
 
         off_t lseek_err=lseek(fd_tfs, 0, SEEK_SET);
         if (lseek_err==-1) {
@@ -39,15 +39,13 @@ int main(int argc, char *argv[]) {
         char *buf=malloc(blocksize);
 
         /**TIME - 1**/
-        struct timespec tp;
+        struct timespec t1 = {0};
 
-        int clock_err=clock_gettime(CLOCK_MONOTONIC, &tp);
+        int clock_err=clock_gettime(CLOCK_MONOTONIC, &t1);
         if (clock_err==-1) {
             perror("clock_gettime");
             exit(EXIT_FAILURE);
         }
-
-        double tv_past=tp.tv_sec+(double)tp.tv_nsec/10000000000;
 
         /**Internal circle**/
         for (int i=0; i<counter; i++) {
@@ -64,15 +62,23 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        free(buf);
+        syncfs(fd_tfs);
 
         /**TIME - 2**/
-        clock_err=clock_gettime(CLOCK_MONOTONIC, &tp);
+        struct timespec t2 = {0};
+        clock_err=clock_gettime(CLOCK_MONOTONIC, &t2);
         if (clock_err==-1) {
             perror("clock_gettime");
             exit(EXIT_FAILURE);
         }
 
-        printf("%d : %f\n", blocksize, (double)blocksize/(tp.tv_sec+(double)tp.tv_nsec/10000000000-tv_past)/1024/1024);   /**Megabyte/sec**/
+        free(buf);
+
+        double elapsedTime;
+
+        elapsedTime = (t2.tv_sec - t1.tv_sec);
+        elapsedTime += (t2.tv_nsec - t1.tv_nsec) / 1.0E9;
+
+        printf("%d : %f : %f\n", blocksize, elapsedTime, ((double)TFS/1024/1024)/elapsedTime);   /**Megabyte/sec**/
     }
 }
